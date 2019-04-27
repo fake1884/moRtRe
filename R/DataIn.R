@@ -1,19 +1,9 @@
-# Hello, world!
-#
-# This is an example function named 'hello'
-# which prints 'Hello, world!'.
-#
-# You can learn more about package authoring with RStudio at:
-#
-#   http://r-pkgs.had.co.nz/
-#
-# Some useful keyboard shortcuts for package authoring:
-#
-#   Build and Reload Package:  'Ctrl + Shift + B'
-#   Check Package:             'Ctrl + Shift + E'
-#   Test Package:              'Ctrl + Shift + T'
+# This file contains functions, to read in relevant data and to save it in \data.
+# Thus the data should easily be availible to other functions in this package.
 
-hello <- convert_data() {
+# The data in this project comes from mortality.org
+
+convert_data() {
 # read the data in and convert it
 
 
