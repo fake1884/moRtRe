@@ -4,4 +4,6 @@
 makeHistogram() {
 # this function is supposed to generate a histogram, that ...
 
+
+
 }

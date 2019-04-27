@@ -4,7 +4,18 @@
 # The data in this project comes from mortality.org
 
 convert_data() {
-# read the data in and convert it
+  # read the data
+  deaths1990 = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/1 total population (1990-2017)/cleaned/1-year-germany-deaths-clean", header = TRUE)
 
+  births1990 = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/1 total population (1990-2017)/cleaned/1-year-germany-births-cleaned", header = TRUE)
+
+  deathrates1990 = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/1 total population (1990-2017)/cleaned/1-year-germany-death-rates-cleaned", header = TRUE)
+
+  # save the data
+  devtools::use_data(deaths1990, overwrite = T)
+
+  devtools::use_data(births1990, overwrite = T)
+
+  devtools::use_data(deathrates1990, overwrite = T)
 
 }
