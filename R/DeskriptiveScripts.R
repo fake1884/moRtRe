@@ -1,8 +1,9 @@
-# The functions in this file generate some visual summary of the data used in this
-# package.
+# Diese Datei enthält eine Funktion, die einen Plot erstellt, aus dem ersichtlich wird/
+# werden soll, dass es Sterblichkeitsverbesserungen/Trends gibt.
 
-MakeBarplot = function() {
-# this function is supposed to generate a histogram, that ...
+##########################################################################################
+MakePlotEinleitung = function() {
+# Diese Funktion macht ... TODO
 
   graphicspath = "../../1 Doku/graphics/einleitung_barplot.pdf"
 
