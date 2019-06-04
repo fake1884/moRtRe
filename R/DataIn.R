@@ -12,8 +12,8 @@ ConvertData = function() {
   popsize1990 = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/1 total population (1990-2017)/cleaned/1-year-germany-popsize-cleaned", header = TRUE)
 
   # read generation data 1879 west
-  deathrates1879west = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/2 west germany (1876 - 1987)/cleaned/death rates 1876 - 1987 west cleaned", header = TRUE)
-  exposure1879west = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/2 west germany (1876 - 1987)/cleaned/exposure 1876 - 1987 west cleaned", header = TRUE)
+  deathrates1879west = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/2 west germany (1876 - 1987)/cleaned/generation table - death rates 1876 - 1987 west - cleaned", header = TRUE)
+  exposure1879west = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/2 west germany (1876 - 1987)/cleaned/generation table - exposure 1876 - 1987 west - cleaned", header = TRUE)
 
 
   # read generation data 1879 east
@@ -21,13 +21,16 @@ ConvertData = function() {
   exposure1879east = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/3 east germany (1879 - 1987 )/cleaned/exposure 1879 - 1987 east cleaned", header = TRUE)
 
 
+  # read period data 1965 west
+  deathrates1965west = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/2 west germany (1876 - 1987)/cleaned/period table - death rates 1965 - 2017 west - cleaned", header = TRUE)
+
 
   # clean data up
   # replace "." by zero; since the data frames have different levels, I have to use
   #                      different zeros
   deathrates1879west$Gesamt[deathrates1879west$Gesamt == "."] = "0.000000"
   exposure1879west$Gesamt[exposure1879west$Gesamt == "."] = "0.00"
-
+  #deathrates1965west$Gesamt[deathrates1965west$Gesamt == "<NA>"] = "0.0"
 
 
   # save period data 1990
@@ -39,6 +42,9 @@ ConvertData = function() {
   # save generation data 1879 west
   devtools::use_data(deathrates1879west, overwrite = T)
   devtools::use_data(exposure1879west, overwrite = T)
+
+  # save period data 1965
+  devtools::use_data(deathrates1965west, overwrite = T)
 
   # save generation data 1879 east
   devtools::use_data(deathrates1879east, overwrite = T)

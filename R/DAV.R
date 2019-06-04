@@ -11,20 +11,16 @@ mittlere_Sterbetafel = function(vec){
 ##########################################################################################
 Basistafel = function(data_in){
   # Beschreibung : TODO
-  Alter = 0:109
+  Alter = 0:110
   Y = rep(NA, 111)
-  Mitte = mittlere_Sterbetafel(1879:1987)
+  Mitte = mittlere_Sterbetafel(1965:2017)
 
-  rates = subset(deathrates1879west, deathrates1879west$Geburtsjahr == i)
+  rates = subset(deathrates1965west, deathrates1965west$Kalenderjahr == Mitte)
   rates = as.numeric(as.vector(rates$Gesamt))
-  exposure = subset(exposure1879west, exposure1879west$Geburtsjahr == i)
-  exposure = as.numeric(as.vector(exposure$Gesamt))
 
-  Todesfälle_gesamt = sum(rates * exposure)
-
- Y = rates * exposure / Todesfälle_gesamt
-
- plot(Alter, Y)
+  pdf("../../1 Doku/graphics/Basistafel.pdf")
+  plot(Alter, rates, pch = 4)
+  dev.off()
 }
 
 ##########################################################################################
