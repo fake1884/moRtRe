@@ -33,6 +33,22 @@ ConvertData = function() {
   #deathrates1965west$Gesamt[deathrates1965west$Gesamt == "<NA>"] = "0.0"
 
 
+  # convert the data to a numeric matrix
+  # convert: 1. factor -> vector
+  #          2. string -> integer
+  # Ein Vergleich mit sum(a != b) liefert nicht immer Null
+  # -> TODO
+  rates_gesamt = as.numeric(as.vector(deathrates1879west$Gesamt))
+  exposure_gesamt = as.numeric(as.vector(exposure1879west$Gesamt))
+  alter = as.numeric(as.vector(deathrates1879west$Alter)) # this line produces a Warning
+  alter[is.na(alter) == TRUE] = 110 # but this line handles the Warning
+  deathrates1879westmatrix = matrix(c(deathrates1879west$Geburtsjahr, alter,
+                                rates_gesamt), ncol = 3)
+  dimnames(deathrates1879westmatrix) = list(c(),c("Geburtsjahr", "Alter", "Deathrate"))
+  exposure1879westmatrix = matrix(c(deathrates1879west$Geburtsjahr, alter,
+                              exposure_gesamt), ncol = 3)
+  dimnames(exposure1879westmatrix) = list(c(),c("Geburtsjahr", "Alter", "Exposure"))
+
   # save period data 1990
   devtools::use_data(deaths1990, overwrite = T)
   devtools::use_data(births1990, overwrite = T)
@@ -40,8 +56,8 @@ ConvertData = function() {
   devtools::use_data(popsize1990, overwrite = T)
 
   # save generation data 1879 west
-  devtools::use_data(deathrates1879west, overwrite = T)
-  devtools::use_data(exposure1879west, overwrite = T)
+  devtools::use_data(deathrates1879westmatrix, overwrite = T)
+  devtools::use_data(exposure1879westmatrix, overwrite = T)
 
   # save period data 1965
   devtools::use_data(deathrates1965west, overwrite = T)

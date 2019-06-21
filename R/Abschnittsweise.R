@@ -31,6 +31,13 @@ MakePlotAbschnittsweise = function(){
     # select only rates != 0
     index = which(rates_i != 0)
     lines(Alter[index], rates_i[index], lty = i%%2)
+
+    # estimate mu und sigma
+    l2error = function(vec){sum( ((2*pi*vec[2]^2)^(-1/2) *
+                                    exp(- (X-vec[1])^2/(2*vec[2]^2)) - Y )^2 )^(1/2)}
+    fit = optim(par = c(80,1), fn = l2error)
+
+    # Annahme mu_{t+1} = a * mu_{t} + \epsilon -> finde mu
   }
 
   dev.off()
