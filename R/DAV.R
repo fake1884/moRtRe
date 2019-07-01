@@ -69,37 +69,44 @@ Lee = function(){
   # Beschreibung : Diese Funktion schätzt die Parameter im Lee-Carter Modell, wie in dem
   #                Paper von Girosi und King vorgeschlagen.
 
-  # example period data
-  periodmatrix = rbind(deathrates1965west$Kalenderjahr, deathrates1965west$Alter,
-                       deathrates1965west$Gesamt)
-
   # initialize constants
-  Geburtsjahre = min(deathrates1965west$Kalenderjahr):max(deathrates1965west$Kalenderjahr)
-  Alter = 0:110
-  M = matrix(rep(NA, length(Alter) * length(Geburtsjahre)))
+  Geburtsjahre = min(deathrates1965west[,1]):max(deathrates1965west[,1])
+  Alter = min(deathrates1965west[,2]):max(deathrates1965west[,2])
+  M = matrix(rep(NA, length(Geburtsjahre) * length(Alter)), nrow = length(Alter),
+                 ncol = length(Geburtsjahre))
   m_bar_a = rep(NA, length(Geburtsjahre))
 
-  # calculate m
-  # CONTIUE HERE
-
-  # calculate m_bar
-  for(i in 1:length(Geburtsjahre)){
-    m_bar_a[i] = 0
-  }
-
   # calculate the M matrix
-  for(i in 1:length(Geburtsjahre)){
-    for(j in Alter){
-      M[i,j] = 0
-    }
+  for(i in 1:length(Alter)){
+    m_at = log(subset(deathrates1965west[,3], deathrates1965west[,2] == -1+i))
+    # setting -Inf to zero might not be the best idea TODO
+    m_at[m_at == "-Inf"] = 0
+    m_bar_a[i] = mean(m_at)
+    M[i,] = m_at - m_bar_a[i]
   }
 
-  # do the SVD
+  # estimate beta
   svd_M = svd(M)
+  B = svd_M$u
+  beta_a = B[,which.max(svd_M$d)]/ sum(B[,which.max(svd_M$d)])
 
-  # estimate parameters
+  # estimate gamma
+  gamma_t = rep(NA, length(Geburtsjahre))
+  for(i in 1:length(Geburtsjahre)){
+    m_at = log(subset(deathrates1965west[,3], deathrates1965west[,1] == 1955+i))
+    # setting -Inf to zero might not be the best idea TODO
+    m_at[m_at == "-Inf"] = 0
+    gamma_t[i] = mean(m_at - m_bar_a)
+  }
 
-  return(list(beta = 0, gamma = 0))
+  # make a plot of k
+  # TODO -> move this downwards
+  pdf("../../1 Doku/graphics/Lee-Carter-k.pdf", width = 10, height = 8)
+  plot(1:length(Geburtsjahre), gamma_t, type = "l",
+       xlab = "gamma_t", ylab = "Geburtsjahre")
+  dev.off()
+
+  return(list(beta_a = beta_a, gamma_t = gamma_t))
 }
 
 

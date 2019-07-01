@@ -27,17 +27,21 @@ ConvertData = function() {
 
   # clean data up
   # replace "." by zero; since the data frames have different levels, I have to use
-  #                      different zeros
+  #                      different zeros;
+  # this might not be the best way of dealing with missing values
+  # -> TODO
   deathrates1879west$Gesamt[deathrates1879west$Gesamt == "."] = "0.000000"
   exposure1879west$Gesamt[exposure1879west$Gesamt == "."] = "0.00"
-  #deathrates1965west$Gesamt[deathrates1965west$Gesamt == "<NA>"] = "0.0"
+  # here I use 0 for missing values. A problem is, that log(0) = -inf, but this happens
+  # anyway, so I see no problem using 0
+  deathrates1965west$Gesamt[deathrates1965west$Gesamt == "."] = "0.000000"
 
 
   # convert the data to a numeric matrix
   # convert: 1. factor -> vector
   #          2. string -> integer
   # Ein Vergleich mit sum(a != b) liefert nicht immer Null
-  # -> TODO
+  # -> TODO (vielleicht liegt das an den Punkten "." in den Daten)
   rates_gesamt = as.numeric(as.vector(deathrates1879west$Gesamt))
   exposure_gesamt = as.numeric(as.vector(exposure1879west$Gesamt))
   alter = as.numeric(as.vector(deathrates1879west$Alter)) # this line produces a Warning
@@ -48,6 +52,16 @@ ConvertData = function() {
   exposure1879westmatrix = matrix(c(deathrates1879west$Geburtsjahr, alter,
                               exposure_gesamt), ncol = 3)
   dimnames(exposure1879westmatrix) = list(c(),c("Geburtsjahr", "Alter", "Exposure"))
+
+
+  # do the same as above for the 1965 period data
+  rates_gesamt = as.numeric(as.vector(deathrates1965west$Gesamt))
+  alter = as.numeric(as.vector(deathrates1965west$Alter)) # this line produces a Warning
+  alter[is.na(alter) == TRUE] = 110 # but this line handles the Warning
+  deathrates1965west = matrix(c(deathrates1965west$Kalenderjahr, alter,
+                                      rates_gesamt), ncol = 3)
+  dimnames(deathrates1965west) = list(c(),c("Kalenderjahr", "Alter", "Deathrate"))
+
 
   # save period data 1990
   devtools::use_data(deaths1990, overwrite = T)
