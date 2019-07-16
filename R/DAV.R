@@ -39,7 +39,8 @@ Whittaker = function(DataIn){
   x = 0:(length(DataIn)-1)
   n = length(DataIn)
   p = 3 # is this correct?
-  lambdas = c(50, 100) # this is where the possible values of lambda are checked
+  lambdas = 0:10 # this is where the possible values of lambda are checked
+  lambdas = 2^lambdas
   GCV = rep(NA, length(lambdas))
   vCandidates = matrix(rep(NA, length(lambdas) * length(u)), ncol = length(lambdas))
   for(k in 1:length(lambdas)){
@@ -74,7 +75,7 @@ Lee = function(){
   Alter = min(deathrates1965west[,2]):max(deathrates1965west[,2])
   M = matrix(rep(NA, length(Geburtsjahre) * length(Alter)), nrow = length(Alter),
                  ncol = length(Geburtsjahre))
-  m_bar_a = rep(NA, length(Geburtsjahre))
+  m_bar_a = rep(NA, length(Alter))
 
   # calculate the M matrix
   for(i in 1:length(Alter)){
@@ -96,15 +97,46 @@ Lee = function(){
     m_at = log(subset(deathrates1965west[,3], deathrates1965west[,1] == 1955+i))
     # setting -Inf to zero might not be the best idea TODO
     m_at[m_at == "-Inf"] = 0
-    gamma_t[i] = mean(m_at - m_bar_a)
+    gamma_t[i] = sum(m_at - m_bar_a)
   }
 
   # make a plot of k
   # TODO -> move this downwards
-  pdf("../../1 Doku/graphics/Lee-Carter-k.pdf", width = 10, height = 8)
-  plot(1:length(Geburtsjahre), gamma_t, type = "l",
-       xlab = "gamma_t", ylab = "Geburtsjahre")
+  pdf("../../1 Doku/graphics/Lee-Carter-gamma.pdf", width = 10, height = 8)
+  plot(1956:2017, gamma_t, type = "l",
+       xlab = "Geburtsjahre", ylab = "gamma_t")
+  lines(1956:2017, rep(0, length(1956:2017)))
+  nu = (gamma_t[length(1956:2017)]-gamma_t[1])/(2017-1956)
   dev.off()
+
+  pdf("../../1 Doku/graphics/Lee-Carter-alpha.pdf", width = 10, height = 8)
+  alpha_a = m_bar_a
+  plot(0:110, exp(alpha_a), type = "l", xlab = "Alter", ylab = "Sterblichkeit")
+  lines(0:110, exp(alpha_a - 1), lty = "dashed")
+  lines(0:110, exp(alpha_a + 1), lty = "dotted")
+  legend("topleft", legend=c("exp(alpha)", "exp(alpha - 1)", "exp(alpha + 1)"),
+         col=c("black", "black", "black"), lty=1:3, cex=1.5)
+  dev.off()
+
+  pdf("../../1 Doku/graphics/Lee-Carter-beta.pdf", width = 10, height = 8)
+  plot(0:110, beta_a, type = "l", xlab = "Alter", ylab = "Beta")
+  abline(v = which.min(beta_a[1:20])-1)
+  abline(v = which.min(beta_a[21:70])-1+20)
+  abline(v = which.min(beta_a[61:99])-1+60)
+  #lines(0:110, rep(max(beta_a[60:110]), 111))
+  dev.off()
+
+  pdf("../../1 Doku/graphics/beta-gamma-heatmap.pdf", width = 10, height = 8)
+  gamma_vec = matrix(gamma_t, ncol = 1)
+  beta_vec = matrix(beta_a, nrow = 1)
+  data = matrix(data = gamma_vec %*% beta_vec, nrow = length(0:110),
+                ncol = length(1956:2017), dimnames = list(0:110, 1956:2017))
+  library(lattice)
+  levelplot(data,  col.regions=0:(110*(2017-1956)+5), regions = T, xlab = "beta",
+            ylab = "gamma")
+  dev.off()
+
+  # Random Walk
 
   return(list(beta_a = beta_a, gamma_t = gamma_t))
 }

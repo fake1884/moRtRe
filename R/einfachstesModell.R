@@ -84,8 +84,11 @@ MakePlotEinfacheModelle = function(){
   data = matrix(data = Todesfälle_gesamt, nrow = length(0:110), ncol = length(1876:1987),
                 dimnames = list(0:110, 1876:1987))
   names(data) = 1876:1987
-  heatmap(data, Rowv = NA, Colv = NA, col = paste("gray",99:1,sep=""))
-  # TODO Legende einfügen
+  # the old heatmap
+  #heatmap(data, Rowv = NA, Colv = NA, col = paste("gray",99:1,sep=""))
+  # the new heatmap
+  library(lattice)
+  levelplot(data,  col.regions=0:36005, regions = T, xlab = "Alter", ylab = "Geburtsjahr")
   dev.off()
 
   #######################################
