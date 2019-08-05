@@ -5,7 +5,8 @@
 
 ##########################################################################################
 einfachstesModellGeburtsjahr = function(RatesIn, ExposureIn){
-# lineares Modell, bei dem nur das Geburtsjahr als erklärende Variable benutzt wird
+  # Diese Funktion berechnet aus einer Generationstafel die Anzahlgewichteten Tode pro
+  # Geburtsjahrgang
 
   # initialize Geburtsjahr, Alter and the dependend variable
   Geburtsjahre = min(RatesIn[,1]):max(RatesIn[,1])
@@ -63,6 +64,55 @@ einfachstesModellAlterEstimateParameters = function(X, Y){
   return(list(mu = fit$par[1], sigma = fit$par[2]))
 }
 
+einfachstesModellLikelihood = function(X, Y){
+  # gesucht sind Nullstellen der log-likelihoodfunktionen
+  erg = einfachstesModellAlterProjektion(deathrates1879westmatrix, exposure1879westmatrix)
+  X = erg$X
+  Y = erg$Y
+
+  # plots for m
+  s = 1
+  likelihoodm = rep(NA, 111)
+  for(m in 0:110){
+    likelihoodm[m+1] = sum((exp(-(m - X)^2/(2*s^2)) - Y) * exp(-(m-X)^2/(2*s^2)) * (m - X))
+  }
+  pdf("../../1 Doku/graphics/mlikelihood-grob.pdf", width = 10, height = 8)
+  plot(0:110, likelihoodm, pch = 4)
+  lines(0:110, rep(0, 111))
+  dev.off()
+  pdf("../../1 Doku/graphics/mlikelihood-fine.pdf", width = 10, height = 8)
+  plot(2:108, likelihoodm[3:109], pch = 4)
+  lines(0:110, rep(0, 111))
+  dev.off()
+
+  # a grob plot for s
+  likelihoods = rep(NA, 201)
+  m=80
+  i=1
+  for(s in seq(0, 200, by=1)){
+    likelihoods[i] = sum( (((1/sqrt(2*pi*s^2))*(exp(-(m - X)^2/(2*s^2)) - Y)))
+                         * exp(-(m - X)^2/(2*s^2)) * (((m-X)^2/s^4)-(1/s^2)) )
+    i=i+1
+  }
+  pdf("../../1 Doku/graphics/slikelihood-grob.pdf", width = 10, height = 8)
+  plot(0:200, likelihoods, pch=4)
+  lines(0:200, rep(0, 201))
+  dev.off()
+
+  # a fine plot for s
+  #likelihoods = rep(NA, 11)
+  #m=80
+  #i=1
+  # for(s in seq(0.3, 0.5, by=0.01)){
+  #   likelihoods[i] = sum((exp(-(m - X)^2/(2*s^2)) - Y) *(((m-X)^2/s^4)-(1/s^2)) )
+  #   i = i+1
+  # }
+  pdf("../../1 Doku/graphics/slikelihood-fine.pdf", width = 10, height = 8)
+  plot(150:200, likelihoods[150:200], pch = 4)
+  lines(150:200, rep(0, 51))
+  dev.off()
+}
+
 
 ##########################################################################################
 MakePlotEinfacheModelle = function(){
@@ -111,5 +161,11 @@ MakePlotEinfacheModelle = function(){
   plot(X,Y, pch = 4, xlab = "Alter", ylab = "Sterbewahrscheinlichkeit")
   erg = einfachstesModellAlterEstimateParameters(X, Y)
   curve((2*pi*erg$sigma^2)^(-1/2) * exp(- (x-erg$mu)^2/(2*erg$sigma^2)), add = T)
+  dev.off()
+
+  ######################################
+  pdf("../../1 Doku/graphics/einfachstesModell-likelihood.pdf", width = 10, height = 8)
+  plot(0:110,Y, pch = 4, xlab = "Alter", ylab = "Likelihood")
+  erg = einfachstesModellAlterEstimateParameters(X, Y)
   dev.off()
 }
