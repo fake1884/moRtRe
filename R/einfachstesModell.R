@@ -74,7 +74,8 @@ einfachstesModellLikelihood = function(X, Y){
   s = 1
   likelihoodm = rep(NA, 111)
   for(m in 0:110){
-    likelihoodm[m+1] = sum((exp(-(m - X)^2/(2*s^2)) - Y) * exp(-(m-X)^2/(2*s^2)) * (m - X))
+    likelihoodm[m+1] = sum(((1/sqrt(2*pi*s^2))*(exp(-(m - X)^2/(2*s^2)) - Y))
+                           * exp(-(m-X)^2/(2*s^2)) * (m - X))
   }
   pdf("../../1 Doku/graphics/mlikelihood-grob.pdf", width = 10, height = 8)
   plot(0:110, likelihoodm, pch = 4)

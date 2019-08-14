@@ -53,6 +53,24 @@ MakeData = function(){
   # trend_period_data[,3] = linear_trend_true_function(trend_period_data[,2],
   #                                                    m, s, 1+(trend_period_data[,2]-1900)/100)
 
+  # set up parameters
+  alpha = 1
+  beta = 1
+  gamma = 1
+  m = 100 # Anzahl an Datensätzen
+  Zeitraum = 1900:2000
+  Alter = 0:110
+
+  # Set up a place to store the data
+  complex_period_data = matrix(c(rep(Zeitraum, length(Alter)),
+                                rep(Alter, length(Zeitraum)) ,
+                                rep(0, length(Alter)*length(Zeitraum)*(m+1))), ncol=m+3)
+
+  # generate the errorless data
+  data = alpha + beta * gamma
+
+  # generate the errors
+  errores = rnorm(n = length(Alter) * length(Zeitraum), mean = 0, sd = 2)
 
 }
 

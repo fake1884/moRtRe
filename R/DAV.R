@@ -2,35 +2,6 @@
 # bestimmen.
 
 ##########################################################################################
-mittlere_Sterbetafel = function(vec){
-  # hier muss man schaune, was man macht, wenn nicht genau ein Jahr in der Mitte liegt.
-  Mitte = vec[length(vec)/2]
-  return(Mitte)
-}
-
-##########################################################################################
-Basistafel = function(data_in){
-  # Beschreibung : TODO
-  Alter = 0:110
-  Y = rep(NA, 111)
-  Mitte = mittlere_Sterbetafel(1965:2017)
-
-  rates = subset(deathrates1965west, deathrates1965west$Kalenderjahr == Mitte)
-  rates = as.numeric(as.vector(rates$Gesamt))
-
-  pdf("../../1 Doku/graphics/Basistafel.pdf")
-  plot(Alter, rates, pch = 4)
-  dev.off()
-}
-
-##########################################################################################
-Extrapolation = function(){
-  # Beschreibung : This function is supposed to estimate death probabilities for high ages.
-  #                However, this is not yet in the thesis -> Ausblick
-
-}
-
-##########################################################################################
 Whittaker = function(DataIn){
   # Beschreibung : Diese Funktion glättet die vorgegebenen Daten (DataIn) mittels des
   #                Whittaker-Henderson-Verfahrens
@@ -123,20 +94,34 @@ Lee = function(){
   abline(v = which.min(beta_a[1:20])-1)
   abline(v = which.min(beta_a[21:70])-1+20)
   abline(v = which.min(beta_a[61:99])-1+60)
-  #lines(0:110, rep(max(beta_a[60:110]), 111))
+  segments(x0=which.max(beta_a[60:90])+60, y0=-0.05,
+           x1=which.max(beta_a[60:90])+60, y1=max(beta_a[60:90]), lty="dashed")
   dev.off()
 
   pdf("../../1 Doku/graphics/beta-gamma-heatmap.pdf", width = 10, height = 8)
   gamma_vec = matrix(gamma_t, ncol = 1)
   beta_vec = matrix(beta_a, nrow = 1)
-  data = matrix(data = gamma_vec %*% beta_vec, nrow = length(0:110),
+  data = matrix(data = t(beta_vec) %*% t(gamma_vec) , nrow = length(0:110),
                 ncol = length(1956:2017), dimnames = list(0:110, 1956:2017))
+  data = data[,62:1]
   library(lattice)
-  levelplot(data,  col.regions=0:(110*(2017-1956)+5), regions = T, xlab = "beta",
-            ylab = "gamma")
+  levelplot(data, xlim = c(0:110), ylim = c(0:61),
+            xlab = "Alter", ylab = "Geburtsjahr nach 1956",
+            col.regions = grey((110*61):0/(110*61)),
+            at=seq(min(data), max(data), abs(max(data)-min(data))/20))
   dev.off()
 
-  # Random Walk
+  pdf("../../1 Doku/graphics/beta-gamma.pdf", width = 10, height = 8)
+  plot(Alter, data[,1], type = "l", ylim = c(min(data[,62]), max(data[,1])),
+       ylab = "beta * gamma")
+  abline(v = which.min(beta_a[1:20])-1)
+  abline(v = which.min(beta_a[21:70])-1+20)
+  abline(v = which.min(beta_a[61:99])-1+60)
+  lines(Alter, data[,62])
+  lines(Alter, rep(0, length(Alter)), lty = "dotted")
+  segments(x0=which.max(beta_a[60:90])+60, y0=max(beta_a[60:90])*gamma_t[1],
+           x1=which.max(beta_a[60:90])+60, y1=max(beta_a[60:90])*gamma_t[62], lty="dashed")
+  dev.off()
 
   return(list(beta_a = beta_a, gamma_t = gamma_t))
 }

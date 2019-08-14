@@ -5,7 +5,6 @@
 MakePlotAbschnittsweise = function(){
   # Abschnittsweises Dichteschätzen
 
-
   # initialize two vectors to store data
   Geburtsjahre = 1879:1987
   Alter = 0:110
@@ -13,36 +12,30 @@ MakePlotAbschnittsweise = function(){
   # Vektor für die mu's anlegen
   mu = rep(NA, length(Geburtsjahre))
 
-  pdf("../../1 Doku/graphics/abschnittsweises-Dichteschaetzen.pdf", width = 10, height = 8,
-      xlab = "Alter", ylab = "Sterblichkeit")
-  plot(0,0, xlim = c(0, 110), ylim = c(0,1), pch = 7)
+  pdf("../../1 Doku/graphics/abschnittsweises-Dichteschaetzen.pdf", width = 10, height = 8)
+  plot(0,0, xlim = c(0, 110), ylim = c(0, 0.4), pch = 7, xlab = "Alter",
+       ylab = "Sterblichkeit")
 
   for(i in Geburtsjahre){
     # vielleicht ist es besser, nur jeden zehnten Geburtsjahrgang zu plotten?
     # -> also mittels der Mod-Funktion (%%) jeden zehnten aussuchen.
 
     # select the correct dataset
-    rates = subset(deathrates1879west, deathrates1879west$Geburtsjahr == i)
-    exposure = subset(exposure1879west, exposure1879west$Geburtsjahr == i)
+    rates_i = subset(deathrates1879westmatrix, deathrates1879westmatrix[,1] == i)
+    exposure_i = subset(exposure1879westmatrix, exposure1879westmatrix[,1] == i)
 
-    # convert: 1. factor -> vector
-    #          2. string -> integer
-    rates_i = as.numeric(as.vector(rates$Gesamt))
-    exposure_i = as.numeric(as.vector(exposure$Gesamt))
-    Todesfälle_i = sum(rates_i * exposure_i)
+    Y = rates_i[,3] * exposure_i[,3] / sum(rates_i[,3] * exposure_i[,3])
 
     # select only rates != 0
     # TODO der Plot enthält eventuell noch zu viele Informationen
-    index = which(rates_i != 0)
-    lines(Alter[index], rates_i[index], lty = i%%2)
+    index = which(Y != 0)
+    if(i %% 20 ==  9){
+      lines(Alter[index], Y[index], lty = i%%2)
+    }
 
     # estimate mu und sigma
-    X = Alter
-    Y = rates_i
-    l2error = function(vec){sum( ((2*pi*vec[2]^2)^(-1/2) *
-                                    exp(- (X-vec[1])^2/(2*vec[2]^2)) - Y )^2 )^(1/2)}
-    fit = optim(par = c(80,1), fn = l2error)
-    mu[i-1878] = fit$par[1] # i is the Geburtsjahr and not the index
+    mu[i-1878] = einfachstesModellAlterEstimateParameters(Alter,Y)$mu # i is the Geburtsjahr
+                                                                      # and not the Index.
   }
   dev.off()
 
@@ -51,5 +44,6 @@ MakePlotAbschnittsweise = function(){
   plot(Geburtsjahre, mu, type = "l")
   dev.off()
 
+  mu.hat = (mu[length(mu)] - mu[1]) / (Geburtsjahre[length(Geburtsjahre)] - Geburtsjahre[1])
 }
 
