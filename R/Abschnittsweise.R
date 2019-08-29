@@ -7,7 +7,7 @@ MakePlotAbschnittsweise = function(){
 
   # initialize two vectors to store data
   Geburtsjahre = 1879:1987
-  Alter = 0:110
+  Alter = 0:95
 
   # Vektor für die mu's anlegen
   mu = rep(NA, length(Geburtsjahre))
@@ -17,9 +17,6 @@ MakePlotAbschnittsweise = function(){
        ylab = "Sterblichkeit")
 
   for(i in Geburtsjahre){
-    # vielleicht ist es besser, nur jeden zehnten Geburtsjahrgang zu plotten?
-    # -> also mittels der Mod-Funktion (%%) jeden zehnten aussuchen.
-
     # select the correct dataset
     rates_i = subset(deathrates1879westmatrix, deathrates1879westmatrix[,1] == i)
     exposure_i = subset(exposure1879westmatrix, exposure1879westmatrix[,1] == i)
@@ -27,15 +24,14 @@ MakePlotAbschnittsweise = function(){
     Y = rates_i[,3] * exposure_i[,3] / sum(rates_i[,3] * exposure_i[,3])
 
     # select only rates != 0
-    # TODO der Plot enthält eventuell noch zu viele Informationen
-    index = which(Y != 0)
+    # Plotte nur jedes 20-te Y
     if(i %% 20 ==  9){
-      lines(Alter[index], Y[index], lty = i%%2)
+      lines(Alter[which(Y != 0)], Y[which(Y != 0)], lty = i%%2)
     }
 
     # estimate mu und sigma
-    mu[i-1878] = einfachstesModellAlterEstimateParameters(Alter,Y)$mu # i is the Geburtsjahr
-                                                                      # and not the Index.
+    Y_mean = rates_i[,3] * exposure_i[,3] * Alter / sum(rates_i[,3] * exposure_i[,3])
+    mu[i-1878] = einfachstesModellAlterEstimateParameters(Alter,Y_mean)$mu
   }
   dev.off()
 

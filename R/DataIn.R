@@ -5,31 +5,16 @@
 
 ##########################################################################################
 ConvertData = function() {
-  # read period data 1990
-  deaths1990 = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/1 total population (1990-2017)/cleaned/1-year-germany-deaths-clean", header = TRUE)
-  births1990 = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/1 total population (1990-2017)/cleaned/1-year-germany-births-cleaned", header = TRUE)
-  deathrates1990 = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/1 total population (1990-2017)/cleaned/1-year-germany-death-rates-cleaned", header = TRUE)
-  popsize1990 = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/1 total population (1990-2017)/cleaned/1-year-germany-popsize-cleaned", header = TRUE)
-
   # read generation data 1879 west
   deathrates1879west = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/2 west germany (1876 - 1987)/cleaned/generation table - death rates 1876 - 1987 west - cleaned", header = TRUE)
   exposure1879west = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/2 west germany (1876 - 1987)/cleaned/generation table - exposure 1876 - 1987 west - cleaned", header = TRUE)
 
-
-  # read generation data 1879 east
-  deathrates1879east = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/3 east germany (1879 - 1987 )/cleaned/death rates 1879 - 1987 east cleaned", header = TRUE)
-  exposure1879east = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/3 east germany (1879 - 1987 )/cleaned/exposure 1879 - 1987 east cleaned", header = TRUE)
-
-
   # read period data 1965 west
   deathrates1965west = read.table("/home/henning/Desktop/Masterarbeit Sterbetrends/2 Daten/2 west germany (1876 - 1987)/cleaned/period table - death rates 1965 - 2017 west - cleaned", header = TRUE)
-
 
   # clean data up
   # replace "." by zero; since the data frames have different levels, I have to use
   #                      different zeros;
-  # this might not be the best way of dealing with missing values
-  # -> TODO
   deathrates1879west$Gesamt[deathrates1879west$Gesamt == "."] = "0.000000"
   exposure1879west$Gesamt[exposure1879west$Gesamt == "."] = "0.00"
   # here I use 0 for missing values. A problem is, that log(0) = -inf, but this happens
@@ -40,8 +25,6 @@ ConvertData = function() {
   # convert the data to a numeric matrix
   # convert: 1. factor -> vector
   #          2. string -> integer
-  # Ein Vergleich mit sum(a != b) liefert nicht immer Null
-  # -> TODO (vielleicht liegt das an den Punkten "." in den Daten)
   rates_gesamt = as.numeric(as.vector(deathrates1879west$Gesamt))
   exposure_gesamt = as.numeric(as.vector(exposure1879west$Gesamt))
   alter = as.numeric(as.vector(deathrates1879west$Alter)) # this line produces a Warning
@@ -62,12 +45,10 @@ ConvertData = function() {
                                       rates_gesamt), ncol = 3)
   dimnames(deathrates1965west) = list(c(),c("Kalenderjahr", "Alter", "Deathrate"))
 
-
-  # save period data 1990
-  devtools::use_data(deaths1990, overwrite = T)
-  devtools::use_data(births1990, overwrite = T)
-  devtools::use_data(deathrates1990, overwrite = T)
-  devtools::use_data(popsize1990, overwrite = T)
+  # reduce the maximum age to 95
+  deathrates1879westmatrix = subset(deathrates1879westmatrix, deathrates1879westmatrix[,2] <= 95)
+  exposure1879westmatrix = subset(exposure1879westmatrix, exposure1879westmatrix[,2] <= 95)
+  deathrates1965west = subset(deathrates1965west, deathrates1965west[,2] <= 95)
 
   # save generation data 1879 west
   devtools::use_data(deathrates1879westmatrix, overwrite = T)
@@ -75,10 +56,6 @@ ConvertData = function() {
 
   # save period data 1965
   devtools::use_data(deathrates1965west, overwrite = T)
-
-  # save generation data 1879 east
-  devtools::use_data(deathrates1879east, overwrite = T)
-  devtools::use_data(exposure1879east, overwrite = T)
 
 }
 
