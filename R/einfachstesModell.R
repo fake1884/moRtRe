@@ -48,7 +48,7 @@ einfachstesModellAlterProjektion = function(RatesIn, ExposureIn){
     Y[i+1] = sum(rates * exposure) / (Todesfälle_gesamt)
   }
 
-  return(list(X = Alter, Y = Y))
+  return(list(X = Alter, Y = Y, Todesfälle = Todesfälle_gesamt))
 }
 
 einfachstesModellAlterEstimateParameters = function(X, Y){

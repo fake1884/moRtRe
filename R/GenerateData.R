@@ -128,7 +128,7 @@ MakeData = function(){
 
   # generate the data
   set.seed(10)
-  sd_rates = sd(deathrates1965west[1:96,3])^2
+  sd_rates = 0.001317417
   for(i in 1:m){
     complex_period_data[,i+3] = complex_period_data[,3] +
                       rnorm(n = length(Alter) * length(Zeitraum), mean = 0, sd = sd_rates)
