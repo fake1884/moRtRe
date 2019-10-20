@@ -47,6 +47,7 @@ Lee = function(Geburtsjahre, Alter, Deathrates){
   m_bar_a = rep(NA, length(Alter))
 
   # calculate the M matrix
+  Deathrates[Deathrates < 0] = 0
   for(i in 1:length(Alter)){
     m_at = log(subset(Deathrates[,3], Deathrates[,2] == -1+i))
     # setting -Inf to zero might not be the best idea TODO

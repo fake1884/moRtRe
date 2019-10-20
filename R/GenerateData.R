@@ -9,7 +9,7 @@ MakeData = function(){
   mu_data = 77
   sigma_data = 12
   sigma_eps = sqrt(0.000006)
-  m = 100 # Anzahl an Datensätzen
+  m = 10000 # Anzahl an Datensätzen
   Alter = 0:95
 
   # Set up a place to store the data
@@ -24,7 +24,7 @@ MakeData = function(){
   for(i in 1:m){
     obs = simple_data[,2] +
                     rnorm(n = length(Alter), mean = 0, sd = sigma_eps)
-    obs[obs < 0] = 0 # no negative rates
+    #obs[obs < 0] = 0 # no negative rates
     simple_data[,i+2] = obs
 
   }
@@ -34,8 +34,8 @@ MakeData = function(){
   X = erg$X
   Y = erg$Y
   erg = einfachstesModellAlterEstimateParameters(X, Y)
-  plot(simple_data[,1], simple_data[,2], type = "l", xlab = "Alter", ylab = "Sterblichkeit")
-  points(simple_data[,1], simple_data[,3], pch = 4)
+  plot(simple_data[,1], simple_data[,3], pch = 4, xlab = "Alter", ylab = "Sterblichkeit")
+  lines(simple_data[,1], simple_data[,2])
   curve((2*pi*erg$sigma^2)^(-1/2) * exp(- (x-erg$mu)^2/(2*erg$sigma^2)), add = T
         , lty = "dashed")
   legend("topleft", legend=c("errorless", "original"),
@@ -100,7 +100,10 @@ MakeData = function(){
     gamma_data[mean(Zeitraum)+1-i] = gamma_data[mean(Zeitraum)+1-i+1] - nu_data +
                                                       rnorm(1, mean = 0, sd = sigma_xi)
   }
-  m = 100 # Anzahl an Datensätzen
+  m = 10000 # Anzahl an Datensätzen
+
+  gamma_sprung = c(gamma_data[1:20]+1*mean(gamma_data[1:20]),
+                   gamma_data[21:41]+1*mean(gamma_data[21:41])) # für den Srung datensatz
 
   # plot the parameters
   pdf("../../1 Doku/graphics/ParameterLee.pdf", width = 10, height = 8)
@@ -108,6 +111,7 @@ MakeData = function(){
   plot(Alter, alpha_data, type = "l")
   plot(Alter, beta_data, type = "l")
   plot(Zeitraum, gamma_data, type = "l")
+  plot(Zeitraum, gamma_sprung, type = "l")
   dev.off()
 
   # Set up a place to store the data
@@ -128,12 +132,11 @@ MakeData = function(){
 
   # generate the data
   set.seed(10)
-  sd_rates = 0.001317417
+  sd_rates = 0.1621458
   for(i in 1:m){
-    complex_period_data[,i+3] = complex_period_data[,3] +
-                      rnorm(n = length(Alter) * length(Zeitraum), mean = 0, sd = sd_rates)
+    complex_period_data[,i+3] = exp(log(complex_period_data[,3]) +
+                      rnorm(n = length(Alter) * length(Zeitraum), mean = 0, sd = sd_rates))
   }
-  complex_period_data = abs(complex_period_data) # make sure there are no negativ values
 
   # plot errorless data, observed data and data with white noise
   pdf("../../1 Doku/graphics/SampleDataLee.pdf", width = 10, height = 8)
@@ -151,7 +154,40 @@ MakeData = function(){
   devtools::use_data(beta_data, overwrite = T)
   devtools::use_data(gamma_data, overwrite = T)
   devtools::use_data(nu_data, overwrite = T)
-}
 
 ##########################################################################################
+  # Sprung data
+
+  # Set up a place to store the data
+  complex_period_data_sprung = matrix(rep(NA, length(Alter)*length(Zeitraum)*(m+3)), ncol = (m+3))
+
+  # set first two coloums
+  for(i in 0:(length(Zeitraum)-1)){
+    complex_period_data_sprung[(1+i*96):(96+i*96),1] = rep(i, length(Alter))
+  }
+  complex_period_data_sprung[,2] = rep(0:95,length(Zeitraum))
+
+
+  # generate errorless data
+  org_data = rep(NA, length(Alter)*length(Zeitraum))
+  for(i in 0:(length(Zeitraum)-1)){
+    complex_period_data_sprung[(1+i*96):(96+i*96),3] =
+                                          exp(alpha_data + beta_data * gamma_sprung[i+1])
+  }
+
+  # generate the data
+  set.seed(10)
+  sd_rates = 0.1621458
+  for(i in 1:m){
+    complex_period_data_sprung[,i+3] = exp(log(complex_period_data_sprung[,3]) +
+                                      rnorm(n = length(Alter) * length(Zeitraum), mean = 0, sd = sd_rates))
+  }
+
+  # save result
+  devtools::use_data(complex_period_data_sprung, overwrite = T)
+  devtools::use_data(gamma_sprung, overwrite = T)
+
+}
+
+
 
