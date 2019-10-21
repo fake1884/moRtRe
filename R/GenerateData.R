@@ -29,19 +29,6 @@ MakeData = function(){
 
   }
 
-  pdf("../../1 Doku/graphics/SampleDataSimple.pdf", width = 10, height = 8)
-  erg = einfachstesModellAlterProjektion(deathrates1879westmatrix, exposure1879westmatrix)
-  X = erg$X
-  Y = erg$Y
-  erg = einfachstesModellAlterEstimateParameters(X, Y)
-  plot(simple_data[,1], simple_data[,3], pch = 4, xlab = "Alter", ylab = "Sterblichkeit")
-  lines(simple_data[,1], simple_data[,2])
-  curve((2*pi*erg$sigma^2)^(-1/2) * exp(- (x-erg$mu)^2/(2*erg$sigma^2)), add = T
-        , lty = "dashed")
-  legend("topleft", legend=c("errorless", "original"),
-         col=c("black", "black"), lty=1:2, cex=1.5)
-  dev.off()
-
   devtools::use_data(simple_data, overwrite = T)
   devtools::use_data(mu_data, overwrite = T)
   devtools::use_data(sigma_data, overwrite = T)
@@ -105,14 +92,6 @@ MakeData = function(){
   gamma_sprung = c(gamma_data[1:20]+1*mean(gamma_data[1:20]),
                    gamma_data[21:41]+1*mean(gamma_data[21:41])) # für den Srung datensatz
 
-  # plot the parameters
-  pdf("../../1 Doku/graphics/ParameterLee.pdf", width = 10, height = 8)
-  par(mfrow=c(2,2))
-  plot(Alter, alpha_data, type = "l")
-  plot(Alter, beta_data, type = "l")
-  plot(Zeitraum, gamma_data, type = "l")
-  plot(Zeitraum, gamma_sprung, type = "l")
-  dev.off()
 
   # Set up a place to store the data
   complex_period_data = matrix(rep(NA, length(Alter)*length(Zeitraum)*(m+3)), ncol = (m+3))
