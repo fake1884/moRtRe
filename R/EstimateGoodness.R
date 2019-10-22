@@ -25,9 +25,10 @@ GoodnessEinfachData = function(){
   Y_second_half = erg_last$Y
 
   # just to check
-  pdf("../../1 Doku/graphics/ErrorEinfachDataExample.pdf", width = 10, height = 8)
-  plot(X, (2*pi*par$sigma^2)^(-1/2) * exp(- (X-par$mu)^2/(2*par$sigma^2)), type = "l")
-  points(X, Y_first_half, pch = 4)
+  pdf("../../1 Doku/graphics/EinfachData.pdf", width = 10, height = 8)
+  plot(X, (2*pi*par$sigma^2)^(-1/2) * exp(- (X-par$mu)^2/(2*par$sigma^2)), type = "l",
+       ylim = c(0,0.04), ylab = "Sterbewahrscheinlichkeit", xlab = "Alter")
+  points(X, Y_first_half, pch = 1)
   points(X,Y_second_half, pch = 4)
   dev.off()
 
@@ -35,13 +36,13 @@ GoodnessEinfachData = function(){
   errors = (Y_second_half -
               (2*pi*par$sigma^2)^(-1/2) * exp(- (X-par$mu)^2/(2*par$sigma^2)))^2
 
-  # plot the errors to find outliers
-  pdf("../../1 Doku/graphics/ErrorEinfachDataErrors.pdf", width = 10, height = 8)
-  par(mfrow = c(1,2))
-  boxplot(errors)
-  hist(errors)
-  dev.off()
-  par(mfrow = c(1,1))
+  # # plot the errors to find outliers
+  # pdf("../../1 Doku/graphics/ErrorEinfachDataErrors.pdf", width = 10, height = 8)
+  # par(mfrow = c(1,2))
+  # boxplot(errors)
+  # hist(errors)
+  # dev.off()
+  # par(mfrow = c(1,1))
 
   # estimate the error
   return(sum(errors))
@@ -87,95 +88,26 @@ GoodnessEinfachSim = function(){
     errors[i-2] = sum((par$mu- mu_data)^2) + sum((par$sigma  - sigma_data)^2)
   }
 
-  # plot the errors to find outliers
-  pdf("../../1 Doku/graphics/ErrorSimple.pdf", width = 10, height = 8)
-  par(mfrow = c(1,2))
-  boxplot(errors)
-  hist(errors)
-  dev.off()
-  par(mfrow = c(1,1))
-  error_per_parameter = mean(errors)/2
+  # # plot the errors to find outliers
+  # pdf("../../1 Doku/graphics/ErrorSimple.pdf", width = 10, height = 8)
+  # par(mfrow = c(1,2))
+  # boxplot(errors)
+  # hist(errors)
+  # dev.off()
+  # par(mfrow = c(1,1))
+  # error_per_parameter = mean(errors)/2
 
   # plot the different errors
   pdf("../../1 Doku/graphics/ErrorSimpleDetailed.pdf", width = 10, height = 8)
-  par(mfrow=c(2,2))
+  par(mfrow=c(1,2))
   hist(ms)
   hist(ss)
-  hist(merror)
-  hist(serror)
+  # hist(merror)
+  # hist(serror)
   dev.off()
+  par(mfrow=c(1,1))
 
   return(mean(errors))
-}
-
-#########################################################################################
-GoodnessWhittakerData = function(){
-  # Beschreibung: Diese Funktion bestimmt den Fehler, der auf dem originalen Datensatz
-  #               mit der Whittaker Schätzmethode erzeugt wurde.
-
-  # select half the data points
-  firsthalf = min(deathrates1879westmatrix[,1]) +
-    length(min(deathrates1879westmatrix[,1]):max(deathrates1879westmatrix[,1]))/2
-  rates = subset(deathrates1879westmatrix, deathrates1879westmatrix[,1] <= firsthalf)
-  exposure = subset(exposure1879westmatrix, exposure1879westmatrix[,1] <= firsthalf)
-  erg = einfachstesModellAlterProjektion(rates, exposure)
-  X = erg$X
-  Y_first_half = erg$Y
-
-  # estimate death-probs
-  v = Whittaker(Y_first_half)
-
-  # select the other half of the data points
-  rates = subset(deathrates1879westmatrix, deathrates1879westmatrix[,1] > firsthalf)
-  exposure = subset(exposure1879westmatrix, exposure1879westmatrix[,1] > firsthalf)
-  erg = einfachstesModellAlterProjektion(rates, exposure)
-  Y_second_half = erg$Y
-
-  # just to check
-  pdf("../../1 Doku/graphics/ErrorWhittakerDataExample.pdf", width = 10, height = 8)
-  plot(X, v, type = "l")
-  points(X, Y_first_half, pch = 4)
-  points(X,Y_second_half, pch = 4)
-  dev.off()
-
-  #calculate the errores
-  errors = (v-Y_second_half)^2
-
-  # plot the errors to find outliers
-  pdf("../../1 Doku/graphics/ErrorWhittakerDataErrors.pdf", width = 10, height = 8)
-  par(mfrow = c(1,2))
-  boxplot(errors)
-  hist(errors)
-  dev.off()
-  par(mfrow = c(1,1))
-
-  # estimate the error
-  return(sum(errors))
-}
-
-GoodnessWhittakerEinfachSim = function(){
-  # Beschreibung: Diese Funktion bestimmt den Fehler, der auf dem simulierten Datensatz
-  #               mit der Whittaker Schätzmethode erzeugt wurde.
-
-  # initialize constants
-  m = 100
-  mu = 70
-  sigma = 15
-  X = 0:95
-  Y = (2*pi*sigma^2)^(-1/2) * exp(- (X-mu)^2/(2*sigma^2))
-  errors_sum = rep(NA, m)
-
-  # estimate the errors
-  for(i in (1+3):(m+3)){
-    # let us for now only take the year 1900 (the first year)
-    erg = Whittaker(simple_data[1:96,i]/sum(simple_data[1:96,i]))
-    Y.hat = erg
-    errors = (Y-Y.hat)^2
-    errors_sum[i-3] = sum(errors)
-  }
-  plot(X, errors)
-
-  return(sum(errors_sum))
 }
 
 
@@ -209,8 +141,6 @@ GoodnessLeeData = function(){
   nu_vec = seq(from = nu, to = nu * YearsToPredict, by = nu)
   gamma_vec = c(gamma_t, gamma_t[length(gamma_t)] + nu_vec)
 
-
-
   # generate the alpha matrix and beta matrix -> generate EstRates matrix
   ones = matrix(rep(1, 1 + max(deathrates1965west[,1]) - min(deathrates1965west[,1])),
                 nrow = 1)
@@ -232,14 +162,29 @@ GoodnessLeeData = function(){
   }
   sd(errors)
 
-  # plot the errors to find outliers
+  # plot different examples of death probability estimation
   pdf("../../1 Doku/graphics/ErrorLeeData.pdf", width = 10, height = 8)
-  par(mfrow = c(1,2))
-  boxplot(errors)
-  hist(errors)
+  par(mfrow = c(2,2))
+  # first year:1956
+  plot(Alter, subset(deathrates1965west[,3], deathrates1965west[,1] == 1956), type = "l",
+       ylab = "Sterblichkeit", main = "1956")
+  lines(Alter, EstRates[,1956-1955], lty = "dashed")
+  # end of first half:1987
+  plot(Alter, subset(deathrates1965west[,3], deathrates1965west[,1] == 1987), type = "l",
+       ylab = "Sterblichkeit", main = "1987")
+  lines(Alter, EstRates[,1987-1955], lty = "dashed")
+  # middle of prediction:2002
+  plot(Alter, subset(deathrates1965west[,3], deathrates1965west[,1] == 2002), type = "l",
+       ylab = "Sterblichkeit", main = "2002")
+  lines(Alter, EstRates[,2002-1955], lty = "dashed")
+  # end of prediction:2017
+  plot(Alter, subset(deathrates1965west[,3], deathrates1965west[,1] == 2017), type = "l",
+       ylab = "Sterblichkeit", main = "2017")
+  lines(Alter, EstRates[,2017-1955], lty = "dashed")
   dev.off()
+  par(mfrow = c(1,1))
 
- return(errors[length(errors)])
+ return(mean(errors))
 }
 
 
@@ -273,12 +218,12 @@ GoodneesLeeSim = function(){
   hist(nuerror)
   dev.off()
 
-  # plot the errors to find outliers
-  pdf("../../1 Doku/graphics/ErrorLee.pdf", width = 10, height = 8)
-  par(mfrow = c(1,2))
-  boxplot(errors)
-  hist(errors)
-  dev.off()
+  # # plot the errors to find outliers
+  # pdf("../../1 Doku/graphics/ErrorLee.pdf", width = 10, height = 8)
+  # par(mfrow = c(1,2))
+  # boxplot(errors)
+  # hist(errors)
+  # dev.off()
   error_per_parameter = mean(errors)/(2*95+40+1)
 
   return(errors = mean(errors))
@@ -291,59 +236,78 @@ GoodnessLeeSimPredict = function(){
   firsthalf =  round(min(complex_period_data[,1]) +
     length(min(complex_period_data[,1]):max(complex_period_data[,1]))/2) # Zeitraum 1,...,40
   Zeitraum = min(complex_period_data[,1]):firsthalf
+  Zeitraum_full = min(complex_period_data[,1]):max(complex_period_data[,1])
   Alter = min(complex_period_data[,2]):max(complex_period_data[,2])
-  est_data = rep(NA, length(Alter)*length(Zeitraum))
 
+  # calculate the mean of EstRates
   m = 100
-  errors = rep(NA, m)
+  EstRatessum = matrix(rep(0, length(Alter)*length(Zeitraum_full)), ncol = 41)
   for(i in 1:m){
     Deathrates = cbind(subset(complex_period_data[,1:2], complex_period_data[,1] <= firsthalf),
                        subset(complex_period_data[,3+i], complex_period_data[,1] <= firsthalf))
     erg = Lee(Zeitraum, Alter, Deathrates)
-    alpha_a = erg$alpha_a
-    beta_a = erg$beta_a
-    gamma_t = erg$gamma_t
-    nu = erg$nu
-    YearsToPredict = max(complex_period_data[,1]) - firsthalf
-    nu_vec = seq(from = nu, to = nu * YearsToPredict, by = nu)
-    gamma_vec = c(gamma_t, gamma_t[length(gamma_t)] + nu_vec)
-    beta_vec = matrix(beta_a, nrow = 1)
-    beta_gamma = t(beta_vec) %*% t(gamma_vec)
     ones = matrix(rep(1, 1 + max(complex_period_data[,1]) - min(complex_period_data[,1])),
                   nrow = 1)
-    alpha_matrix =  matrix(alpha_a, ncol = 1) %*% ones
-    EstRates = exp(alpha_matrix + beta_gamma)
+    alpha_matrix =  matrix(erg$alpha_a, ncol = 1) %*% ones
+    beta_vec = matrix(erg$beta_a, nrow = 1)
+    YearsToPredict = max(complex_period_data[,1]) - firsthalf
+    gamma_t = erg$gamma_t
+    nu = erg$nu
+    nu_vec = seq(from = nu, to = nu * YearsToPredict, by = nu)
+    gamma_vec = c(gamma_t, gamma_t[length(gamma_t)] + nu_vec)
+    beta_gamma = t(beta_vec) %*% t(gamma_vec)
 
-    # calculate errors
-    errors_pro_Jahr = rep(NA, (1+max(complex_period_data[,1])) - firsthalf)
-    Geburtsjahre_all=max(complex_period_data[,1]) : firsthalf
-    j=1
-    for(k in Geburtsjahre_all){
-      errors_pro_Jahr[j] = sum((EstRates[,k] -
-                         subset(complex_period_data[,3+i], complex_period_data[,1] == k))^2)
-      j=j+1
-    }
-    errors[i] = mean(errors_pro_Jahr)
+    EstRates = exp(alpha_matrix + beta_gamma)
+    EstRatessum = EstRatessum + EstRates
+  }
+  # now take the mean
+  EstRates = EstRatessum/m
+
+  # calculate errors
+  errors = rep(NA, (1+max(complex_period_data[,1])))
+  for(k in 1:41){
+    errors[k] = sum((EstRates[,k] - complex_period_data[(1:96)+96*(k-1),3])^2)
   }
 
-  # plot the parameters; first generate the regular gamma estimator
-  Zeitraum_gamma = min(complex_period_data[,1]):max(complex_period_data[,1])
-  Alter_gamma = min(complex_period_data[,2]):max(complex_period_data[,2])
-  est_data_gamma = Lee(Zeitraum_gamma, Alter_gamma,
-                       cbind(complex_period_data[,1:2], complex_period_data[,3+i]))
+  # estimate the death probabilities on the whole data set
+  EstRates_full_sum = matrix(rep(0, length(Alter)*length(Zeitraum_full)), ncol = 41)
+  for(i in 1:m){
+    est_data_full = Lee(Zeitraum_full, Alter,
+                         cbind(complex_period_data[,1:2], complex_period_data[,3+i]))
+    ones_full = matrix(rep(1, 1 + max(complex_period_data[,1]) - min(complex_period_data[,1])),
+                         nrow = 1)
+    alpha_matrix_full =  matrix(est_data_full$alpha_a, ncol = 1) %*% ones
+    beta_vec_full = matrix(est_data_full$beta_a, nrow = 1)
+    gamma_vec_full= matrix(est_data_full$gamma_t, ncol = 1)
+    beta_gamma_full = t(beta_vec_full) %*% t(gamma_vec_full)
+    EstRates_full = exp(alpha_matrix_full + beta_gamma_full)
+    EstRates_full_sum = EstRates_full_sum + EstRates_full
+  }
+  # now take the mean
+  EstRates_full = EstRates_full_sum/m
+
+  # calculate errors
+  errors_full = rep(NA, (1+max(complex_period_data[,1])))
+  for(k in 1:41){
+    errors_full[k] = sum((EstRates_full[,k] - complex_period_data[(1:96)+96*(k-1),3])^2)
+  }
+
+  # plot the parameters
   pdf("../../1 Doku/graphics/ParameterLee.pdf", width = 10, height = 8)
   par(mfrow=c(2,2))
-  plot(Alter, alpha_data, type = "l")
+  plot(Alter, alpha_data, type = "l", ylab = "alpha")
   lines(Alter, alpha_a, lty = "dashed")
-  plot(Alter, beta_data, type = "l")
+  plot(Alter, beta_data, type = "l", ylab = "beta")
   lines(Alter, beta_a, lty = "dashed")
-  plot(min(complex_period_data[,1]):max(complex_period_data[,1]), gamma_data, type = "l")
+  plot(min(complex_period_data[,1]):max(complex_period_data[,1]), gamma_data, type = "l",
+       xlab = "Zeitraum", ylab = "gamma")
   lines(min(complex_period_data[,1]):max(complex_period_data[,1]),
-        est_data_gamma$gamma_t, lty = "dashed")
-  lines(min(complex_period_data[,1]):max(complex_period_data[,1]), gamma_vec, lty = "dotted")
+        gamma_vec_full, lty = "dashed")
+  # is it reasonable to plot the gamma vector for the prediction as well?
+  #lines(min(complex_period_data[,1]):max(complex_period_data[,1]), gamma_vec, lty = "dotted")
   lines(min(complex_period_data[,1]):max(complex_period_data[,1]), rep(0,41), lty = "dotdash")
   plot(min(complex_period_data[,1]):max(complex_period_data[,1]),
-       gamma_sprung, type = "l")
+       gamma_sprung, type = "l", xlab = "Zeitraum", ylab = "gamma")
   # gamma_sprung_est has to be generated first
   #GoodnessLeeSimSprung()
   #devtools::loadall()
@@ -351,12 +315,33 @@ GoodnessLeeSimPredict = function(){
         est_gamma_sprung, lty = "dashed")
   lines(min(complex_period_data[,1]):max(complex_period_data[,1]), rep(0,41), lty = "dotdash")
   dev.off()
+  par(mfrow = c(1,1))
 
+  # plot the estimation on the wohle data set versus the prediction
   pdf("../../1 Doku/graphics/ErrorLeeSimPredict.pdf", width = 10, height = 8)
-  par(mfrow = c(1,2))
-  boxplot(errors)
-  hist(errors)
+  par(mfrow = c(2,2))
+  # start of first half:0
+  plot(Alter, complex_period_data[(1:96)+96*(1-1),3], type = "l", ylab = "Sterblichkeit",
+       main = "Jahr 0")
+  lines(Alter, EstRates[,1], lty = "dashed")
+  lines(Alter, EstRates_full[,1], lty = "dotted")
+  # end of first half:20
+  plot(Alter, complex_period_data[(1:96)+96*(20-1),3], type = "l", ylab = "Sterblichkeit",
+       main = "Jahr 20")
+  lines(Alter, EstRates[,21], lty = "dashed")
+  lines(Alter, EstRates_full[,21], lty = "dotted")
+  # middle of prediction:30
+  plot(Alter, complex_period_data[(1:96)+96*(30-1),3], type = "l", ylab = "Sterblichkeit",
+       main = "Jahr 30")
+  lines(Alter, EstRates[,31], lty = "dashed")
+  lines(Alter, EstRates_full[,31], lty = "dotted")
+  # end of prediction:40
+  plot(Alter, complex_period_data[(1:96)+96*(40-1),3], type = "l", ylab = "Sterblichkeit",
+       main = "Jahr 40")
+  lines(Alter, EstRates[,41], lty = "dashed")
+  lines(Alter, EstRates_full[,41], lty = "dotted")
   dev.off()
+  par(mfrow = c(1,1))
 
   return(mean(errors))
 }
@@ -380,10 +365,10 @@ GoodnessLeeSimSprung = function(){
   for(i in Zeitraum){
     est_gamma_sprung[i+1] = mean(gammasprung[,i+1])
   }
-  # plot the mean of the gamma estimates
-  pdf("../../1 Doku/graphics/GammaSprung.pdf", width = 10, height = 8)
-  plot(Zeitraum, est_gamma_sprung, type = "l")
-  dev.off()
+  # # plot the mean of the gamma estimates
+  # pdf("../../1 Doku/graphics/GammaSprung.pdf", width = 10, height = 8)
+  # plot(Zeitraum, est_gamma_sprung, type = "l")
+  # dev.off()
   # save result for the plot in LeeSim
   devtools::use_data(est_gamma_sprung, overwrite = T)
 }

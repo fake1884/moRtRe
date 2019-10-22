@@ -119,7 +119,6 @@ MakeData = function(){
 
   # plot errorless data, observed data and data with white noise
   pdf("../../1 Doku/graphics/SampleDataLee.pdf", width = 10, height = 8)
-  par(mfrow = c(1,1))
   plot(Alter, complex_period_data[(1:96)+(10*96),3], type = "l", ylab = "Sterblichkeit")
   lines(Alter, deathrates1965west[(1:96)+(10*96),3], lty = "dashed")
   points(Alter, complex_period_data[(1:96)+(10*96),4], pch=4)
