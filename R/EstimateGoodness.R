@@ -44,6 +44,24 @@ GoodnessEinfachData = function(){
   # dev.off()
   # par(mfrow = c(1,1))
 
+  # estimate the error of the whole data set
+  erg_full = einfachstesModellAlterProjektion(deathrates1879westmatrix,
+                                                  exposure1879westmatrix)
+  X_full = erg_full$X
+  Y_full = erg_full$Y
+
+  par_full = einfachstesModellAlterEstimateParameters(X_full, Y_full)
+
+  # plot(X_full,Y_full, pch = 4, xlab = "Alter", ylab = "Sterbewahrscheinlichkeit")
+  # erg_full = einfachstesModellAlterEstimateParameters(X_full, Y_full)
+  # curve((2*pi*erg_full$sigma^2)^(-1/2) * exp(- (x-erg_full$mu)^2/(2*erg_full$sigma^2)),
+  #       add = T)
+
+  # estimate the variance
+  sigma_epsilon_hat = sqrt(sum((Y_full - (2*pi*par_full$sigma^2)^(-1/2) *
+                             exp(- (X_full-par_full$mu)^2/(2*par_full$sigma^2)))^2)/
+                      (length(Y_full)))
+
   # estimate the error
   return(sum(errors))
 }
@@ -134,7 +152,7 @@ GoodnessLeeData = function(){
   for(i in 1:(length(Geburtsjahre)-1)){
     sigma_xi_vec[i] = (gamma_t[i+1] - gamma_t[i] - nu)^2
   }
-  sigma_xi = sqrt((1/(length(Geburtsjahre)-2))*sum(sigma_xi_vec))
+  sigma_xi = sqrt((1/(length(Geburtsjahre)))*sum(sigma_xi_vec))
 
   # predict
   YearsToPredict = max(deathrates1965west[,1]) - firsthalf
@@ -160,7 +178,7 @@ GoodnessLeeData = function(){
                        #log(subset(Deathrates[,3], Deathrates[,1] == i)))^2)#for error estimation
     j=j+1
   }
-  sd(errors)
+  sd_rates = sqrt(sum(errors)/length(errors))
 
   # plot different examples of death probability estimation
   pdf("../../1 Doku/graphics/ErrorLeeData.pdf", width = 10, height = 8)
@@ -181,8 +199,9 @@ GoodnessLeeData = function(){
   plot(Alter, subset(deathrates1965west[,3], deathrates1965west[,1] == 2017), type = "l",
        ylab = "Sterblichkeit", main = "2017")
   lines(Alter, EstRates[,2017-1955], lty = "dashed")
-  dev.off()
   par(mfrow = c(1,1))
+  dev.off()
+
 
  return(mean(errors))
 }
@@ -216,6 +235,7 @@ GoodneesLeeSim = function(){
   hist(betaerror)
   hist(gammaerror)
   hist(nuerror)
+  par(mfrow=c(1,1))
   dev.off()
 
   # # plot the errors to find outliers
@@ -296,9 +316,9 @@ GoodnessLeeSimPredict = function(){
   pdf("../../1 Doku/graphics/ParameterLee.pdf", width = 10, height = 8)
   par(mfrow=c(2,2))
   plot(Alter, alpha_data, type = "l", ylab = "alpha")
-  lines(Alter, alpha_a, lty = "dashed")
+  lines(Alter, est_data_full$alpha_a, lty = "dashed")
   plot(Alter, beta_data, type = "l", ylab = "beta")
-  lines(Alter, beta_a, lty = "dashed")
+  lines(Alter, est_data_full$beta_a, lty = "dashed")
   plot(min(complex_period_data[,1]):max(complex_period_data[,1]), gamma_data, type = "l",
        xlab = "Zeitraum", ylab = "gamma")
   lines(min(complex_period_data[,1]):max(complex_period_data[,1]),

@@ -5,10 +5,10 @@
 
 MakeData = function(){
   # set parameters
-  # mu = 77.00817; sigma = 12.02285; estimates from data
+  # mu = 77.51859; sigma = 12.36892; estimates from data
   mu_data = 77
   sigma_data = 12
-  sigma_eps = sqrt(0.000006)
+  sigma_eps = 0.002427235
   m = 10000 # Anzahl an Datensätzen
   Alter = 0:95
 
@@ -76,7 +76,7 @@ MakeData = function(){
   Zeitraum = 0:40
   Alter = 0:95
   nu_data = -1.679
-  sigma_xi = 2.344917
+  sigma_xi = 2.270456
   gamma_data = rep(NA, length(Zeitraum))
   gamma_data[mean(Zeitraum)+1] = 0
   for(i in 1:((length(Zeitraum)-1)/2)){
@@ -111,7 +111,7 @@ MakeData = function(){
 
   # generate the data
   set.seed(10)
-  sd_rates = 0.1621458
+  sd_rates = 0.05933034
   for(i in 1:m){
     complex_period_data[,i+3] = exp(log(complex_period_data[,3]) +
                       rnorm(n = length(Alter) * length(Zeitraum), mean = 0, sd = sd_rates))
@@ -137,7 +137,8 @@ MakeData = function(){
   # Sprung data
 
   # Set up a place to store the data
-  complex_period_data_sprung = matrix(rep(NA, length(Alter)*length(Zeitraum)*(m+3)), ncol = (m+3))
+  complex_period_data_sprung = matrix(rep(NA, length(Alter)*length(Zeitraum)*(m+3)),
+                                      ncol = (m+3))
 
   # set first two coloums
   for(i in 0:(length(Zeitraum)-1)){
@@ -155,10 +156,11 @@ MakeData = function(){
 
   # generate the data
   set.seed(10)
-  sd_rates = 0.1621458
+  sd_rates = 0.05933034
   for(i in 1:m){
     complex_period_data_sprung[,i+3] = exp(log(complex_period_data_sprung[,3]) +
-                                      rnorm(n = length(Alter) * length(Zeitraum), mean = 0, sd = sd_rates))
+                                      rnorm(n = length(Alter) * length(Zeitraum),
+                                            mean = 0, sd = sd_rates))
   }
 
   # save result
