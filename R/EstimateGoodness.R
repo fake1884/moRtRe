@@ -30,6 +30,8 @@ GoodnessEinfachData = function(){
        ylim = c(0,0.04), ylab = "Sterbewahrscheinlichkeit", xlab = "Alter")
   points(X, Y_first_half, pch = 1)
   points(X,Y_second_half, pch = 4)
+  legend( x="topleft", cex = 1.5,
+          legend=c("Datensatz bis 1932","Datensatz ab 1932"), lwd=1, lty=c(0,0), pch=c(1,4))
   dev.off()
 
   # calculate the errors
@@ -146,9 +148,21 @@ GoodnessLeeData = function(){
   alpha_data = alpha_a
   beta_data = beta_a
   nu_data = nu
+  gamma_historical = gamma_t
   devtools::use_data(alpha_data, overwrite = T)
   devtools::use_data(beta_data, overwrite = T)
   devtools::use_data(nu_data, overwrite = T)
+  devtools::use_data(gamma_historical, overwrite = T)
+
+  plot(0:31, gamma_historical)
+  #lines(4:35, gamma_historical, lty = "dotted")
+
+  # plot the gamma parameter of the historical data set
+  pdf("../../1 Doku/graphics/gamma_historical.pdf", width = 10, height = 8)
+  plot(0:31, gamma_historical, type = "l", ylab = "alpha")
+  lines(0:31,0:31*nu+max(gamma_historical), lty = "dashed")
+  lines(0:31, rep(0,32), lty = "dotdash")
+  dev.off()
 
   # calculate the errors
   errors = rep(NA, ((1+max(deathrates1965west[,1])) - min(deathrates1965west[,1]))/2)
@@ -319,7 +333,7 @@ GoodnessLeeSimPredict = function(){
   plot(Alter, beta_data, type = "l", ylab = "beta")
   lines(Alter, est_data_full$beta_a, lty = "dashed")
   plot(min(complex_period_data[,1]):max(complex_period_data[,1]), gamma_data, type = "l",
-       xlab = "Zeitraum", ylab = "gamma")
+       xlab = "Zeitraum", ylab = "gamma", ylim = c(-34, 34))
   lines(min(complex_period_data[,1]):max(complex_period_data[,1]),
         gamma_vec_full, lty = "dashed")
   lines(min(complex_period_data[,1]):max(complex_period_data[,1]), rep(0,41), lty = "dotdash")
