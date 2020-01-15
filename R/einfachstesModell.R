@@ -1,8 +1,5 @@
 # Diese Datei enthälte die Skripte, um einfach Modelle zu bestimmen.
 
-# TODO: Die beiden Modellfunktionen können noch nicht auf beliebige Stichproben angewandt
-#       werden. Dies muss repariert werden.
-
 ##########################################################################################
 einfachstesModellGeburtsjahr = function(RatesIn, ExposureIn){
   # Diese Funktion berechnet aus einer Generationstafel die Anzahlgewichteten Tode pro

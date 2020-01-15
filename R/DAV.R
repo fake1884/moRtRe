@@ -144,7 +144,7 @@ MakePlotDAV = function (){
   # make a plot of gamma
   pdf("../../1 Doku/graphics/Lee-Carter-gamma.pdf", width = 10, height = 8)
   plot(1956:2017, gamma_t, type = "l",
-       xlab = "Geburtsjahre", ylab = "gamma_t")
+       xlab = "Beobachtungsjahre", ylab = "gamma_t")
   lines(1956:2017, rep(0, length(1956:2017)))
   dev.off()
 
@@ -157,7 +157,7 @@ MakePlotDAV = function (){
   data = data[,62:1]
   library(lattice)
   levelplot(data, xlim = c(0:95), ylim = c(0:61),
-            xlab = "Alter", ylab = "Geburtsjahr nach 1956",
+            xlab = "Alter", ylab = "Beobachtungsjahr nach 1956",
             col.regions = grey((110*61):0/(110*61)),
             at=seq(min(data), max(data), abs(max(data)-min(data))/20))
   dev.off()
